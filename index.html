@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#254c3d">
+  <meta name="description" content="함께 준비하는 저녁 피크닉. 준비물, 담당자, 예상 비용과 준비 현황을 한눈에 확인하세요.">
+  <title>우리들의 저녁 피크닉 · 포트락</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="core.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#content">본문으로 건너뛰기</a>
+  <div class="shell">
+    <header class="masthead"><a href="./" aria-label="저녁 피크닉 홈"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 26V13M16 18C5 18 5 6 5 6s12 0 11 12Zm0-4C16 5 27 4 27 4s2 12-11 10Z"/></svg><span>저녁 피크닉</span></a><span class="edition">함께 차리는 한 끼</span></header>
+    <main id="content">
+      <section class="intro" aria-labelledby="title">
+        <div class="intro-copy"><p class="eyebrow">PICNIC POTLUCK</p><h1 id="title">각자의 한 가지가,<br>우리의 저녁으로.</h1><p class="intro-desc">무엇을 준비할지, 누가 가져올지.<br class="mobile-break"> 만나기 전에 가볍게 확인해요.</p><div class="event-info"><span id="people-label">참석 인원 확인 중</span><span>당일치기 · 저녁식사</span></div></div>
+        <div class="picnic-art" aria-hidden="true"><div class="cloth"><div class="plate"><div class="leaf leaf-one"></div><div class="leaf leaf-two"></div><div class="tomato"></div><div class="tomato small"></div></div><div class="fork"><i></i><i></i><i></i></div><div class="napkin"></div><div class="cup"></div></div><span>한 가지씩, 함께.</span></div>
+      </section>
+      <div id="loading" class="notice" role="status">준비물 목록을 불러오고 있어요.</div>
+      <div id="load-error" class="error" role="alert" hidden><h2>목록을 불러오지 못했어요.</h2><p id="error-message"></p><button id="retry" class="primary">다시 불러오기</button></div>
+      <div id="app" hidden>
+        <section class="summary" aria-label="전체 준비 현황"><div><span>준비물</span><strong id="count">—</strong></div><div><span>예상 총비용</span><strong id="total">—</strong></div><div><span>고기 총중량</span><strong id="meat">—</strong></div></section>
+        <div class="update-line"><span id="updated"></span><button id="refresh" class="text-button">새로고침 <span aria-hidden="true">↻</span></button></div>
+        <nav class="view-nav" aria-label="화면 선택"><button class="selected" data-view="items" aria-pressed="true">준비물 목록</button><button data-view="stats" aria-pressed="false">준비 현황</button></nav>
+        <section id="items-view" aria-labelledby="list-title">
+          <div class="section-heading"><div><h2 id="list-title">우리의 준비물</h2><p>담당자와 준비 상태를 확인해요.</p></div><span id="result-count" class="result-count"></span></div>
+          <div id="categories" class="categories" role="group" aria-label="카테고리 필터"></div>
+          <div class="filters"><div class="search-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="search">준비물 검색</label><input id="search" type="search" placeholder="상품명 또는 메모 검색" autocomplete="off"></div><div class="owner-wrap"><label class="sr-only" for="owner-filter">준비자</label><select id="owner-filter"><option value="">모든 준비자</option></select></div><label class="check-filter"><input id="needs-check" type="checkbox">확인 필요만</label></div>
+          <div id="items-list" class="items-list" aria-live="polite"></div>
+          <div id="empty" class="empty" hidden><strong>조건에 맞는 준비물이 없어요.</strong><p>검색어나 필터를 바꿔보세요.</p><button id="clear-filters">필터 초기화</button></div>
+          <p class="list-note">표시 가격은 해당 수량 전체의 예상 비용입니다.</p>
+        </section>
+        <section id="stats-view" aria-labelledby="stats-title" hidden>
+          <div class="section-heading"><div><h2 id="stats-title">저녁 준비는 이만큼</h2><p>전체 목록을 기준으로 계산한 현황이에요.</p></div></div>
+          <div class="stats-grid"><section class="stat-panel"><h3>준비 진행률</h3><div class="progress-head"><strong id="ready-number"></strong><span id="ready-percent"></span></div><div class="progress-track"><div id="ready-bar"></div></div><p id="status-summary" class="muted"></p></section><section class="stat-panel"><h3>함께 정산할 금액</h3><strong id="shared-total" class="large-value"></strong><p id="undecided-note" class="muted"></p><p class="fine">품목의 비용 구분 기준 · 장바구니 조정액은 별도</p></section></div>
+          <section class="stat-panel meat-panel"><div class="panel-heading"><h3>고기, 충분할까요?</h3><span id="meat-readiness" class="status"></span></div><div class="meat-numbers"><div><span>총중량</span><strong id="meat-total"></strong></div><div><span id="per-label"></span><strong id="meat-per"></strong></div></div><p id="meat-advice"></p><p id="meat-target" class="fine"></p><p class="fine">해산물은 제외합니다. 뼈·손질 손실은 반영하지 않은 단순 총중량입니다.</p></section>
+          <section class="stat-panel"><h3>예상 비용 내역</h3><dl class="cost-lines"><div><dt>상품 금액 합계</dt><dd id="gross"></dd></div><div><dt>장바구니 조정액</dt><dd id="adjustment"></dd></div><div class="cost-total"><dt>예상 총비용</dt><dd id="net"></dd></div><div><dt>개인 제공 · 정산 제외</dt><dd id="personal"></dd></div><div><dt>비용 구분 미정</dt><dd id="undecided"></dd></div></dl><p class="fine">조정액은 기존 파일의 값을 유지했습니다. 공동 정산에 배분하지 않았으며, 실제 결제액과 다를 수 있습니다.</p></section>
+          <section class="stat-panel"><h3>준비자별 내역</h3><div id="owners-list"></div></section>
+          <section class="stat-panel"><h3>만나기 전 확인해요</h3><ul id="checklist" class="checklist"></ul></section>
+        </section>
+        <footer><p>서로의 준비가 모여, 좋은 저녁이 됩니다.</p><small>장바구니 기준 예상 비용 · 상품명이 불확실한 항목은 확인 필요로 표시합니다.</small><small>이 페이지는 조회 전용입니다. 변경할 내용은 모임 관리자에게 알려주세요.</small></footer>
+      </div>
+      <noscript><p class="error">준비물을 보려면 브라우저에서 JavaScript를 켜주세요.</p></noscript>
+    </main>
+  </div>
+</body>
+</html>
