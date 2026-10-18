@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 2,
-  "updatedAt": "2026-10-18T12:56:17.584Z",
+  "revision": 3,
+  "updatedAt": "2026-10-18T13:16:32.335Z",
   "people": 10,
   "adjustment": -3000,
   "meatTargetGrams": {
@@ -138,6 +138,61 @@
       "grams": null,
       "price": 7140,
       "category": "supplies"
+    },
+    {
+      "id": "picnic-011",
+      "name": "키친팩토리 스테인레스 고기집게 270mm, 2개입",
+      "unit": "세트",
+      "qty": 1,
+      "grams": null,
+      "price": null,
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "category": "supplies",
+      "memo": "추가 주문서: 수량 1 / 무료배송 / 10월 21일 도착 선택. 개별 가격 미표시, 결제 완료 여부 미확인."
+    },
+    {
+      "id": "picnic-012",
+      "name": "탐사 무인쇄 종이용기 380ml, 50개입",
+      "unit": "팩",
+      "qty": 1,
+      "grams": null,
+      "price": null,
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "category": "supplies",
+      "memo": "추가 주문서: 수량 1 / 무료배송 / 10월 21일 도착 선택. 개별 가격 미표시, 결제 완료 여부 미확인."
+    },
+    {
+      "id": "picnic-013",
+      "name": "코멧 동물 종이컵 190ml, 100개입",
+      "unit": "팩",
+      "qty": 1,
+      "grams": null,
+      "price": null,
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "category": "supplies",
+      "memo": "추가 주문서: 수량 1 / 무료배송 / 10월 21일 도착 선택. 개별 가격 미표시, 결제 완료 여부 미확인."
+    }
+  ],
+  "costGroups": [
+    {
+      "id": "coupang-order-20261018",
+      "label": "추가 주문서 · 용품 5개 품목",
+      "amount": 27230,
+      "costType": "미정",
+      "itemIds": [
+        "picnic-008",
+        "picnic-009",
+        "picnic-011",
+        "picnic-012",
+        "picnic-013"
+      ],
+      "memo": "첨부 주문서의 총 결제 금액 27,230원을 예상 비용으로 등록. 개별 가격은 표시되지 않음. 컵·오일의 기존 예상가는 참고용으로 유지하고 총액에서 제외. 결제 완료로 간주하지 않음."
     }
   ]
 }

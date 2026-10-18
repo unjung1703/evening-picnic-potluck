@@ -6,6 +6,38 @@
   const costTypes = ['미정', '공동 정산', '개인 제공'];
   const money = value => Math.round(value).toLocaleString('ko-KR') + '원';
   const weight = grams => grams === null ? '중량 확인 필요' : grams >= 1000 ? (grams / 1000).toLocaleString('ko-KR', { maximumFractionDigits: 3 }) + 'kg' : grams.toLocaleString('ko-KR', { maximumFractionDigits: 1 }) + 'g';
+  const groupForItem = (data, id) => (data.costGroups || []).find(group => group.itemIds.includes(id));
+  function costEntries(data) {
+    const groups = data.costGroups || [];
+    const grouped = new Set(groups.flatMap(group => group.itemIds));
+    return [...data.items.filter(item => !grouped.has(item.id) && item.price !== null).map(item => ({ amount:item.price,costType:item.costType })), ...groups];
+  }
+  function ownerCosts(data, owner) {
+    const items = data.items.filter(item => item.owner === owner);
+    let amount = items.filter(item => !groupForItem(data,item.id)).reduce((sum,item) => sum + (item.price ?? 0),0);
+    let separateGroups = 0;
+    for (const group of data.costGroups || []) {
+      const members = data.items.filter(item => group.itemIds.includes(item.id));
+      if (members.some(item => item.owner === owner)) {
+        if (members.every(item => item.owner === owner)) amount += group.amount;
+        else separateGroups++;
+      }
+    }
+    return {amount,separateGroups};
+  }
+  function readHtmlSeed(html) {
+    const match = html.match(/<script\b(?=[^>]*\bid=["']initial-data["'])[^>]*>([\s\S]*?)<\/script\s*>/i);
+    if (!match) throw new Error('이 편집기로 저장한 HTML 파일을 선택하세요.');
+    const data = JSON.parse(match[1]); const errors = validate(data);
+    if (errors.length) throw new Error(errors.join('\n'));
+    return data;
+  }
+  function replaceHtmlSeed(html, data) {
+    const errors = validate(data); if (errors.length) throw new Error(errors.join('\n'));
+    readHtmlSeed(html);
+    const safe = JSON.stringify(data,null,2).replaceAll('<','\\u003c');
+    return html.replace(/(<script\b(?=[^>]*\bid=["']initial-data["'])[^>]*>)[\s\S]*?(<\/script\s*>)/i, (_,open,close) => open + safe + close);
+  }
   function validate(data) {
     const errors = [];
     if (!data || typeof data !== 'object' || Array.isArray(data)) return ['JSON 객체가 필요합니다.'];
@@ -33,16 +65,31 @@
       if (!costTypes.includes(item.costType)) errors.push(label + '비용 구분을 확인하세요.');
       if (!Number.isFinite(item.qty) || item.qty <= 0 || item.qty > 1000000) errors.push(label + '수량은 0보다 커야 합니다.');
       if (item.grams !== null && (!Number.isFinite(item.grams) || item.grams < 0 || item.grams > 1000000000)) errors.push(label + '개당 중량을 확인하세요.');
-      if (!Number.isSafeInteger(item.price) || item.price < 0) errors.push(label + '비용은 0 이상의 원 단위 정수여야 합니다.');
+      if (item.price !== null && (!Number.isSafeInteger(item.price) || item.price < 0)) errors.push(label + '비용은 0 이상의 원 단위 정수 또는 미확인이어야 합니다.');
       if (typeof item.memo !== 'string' || item.memo.length > 3000) errors.push(label + '메모를 확인하세요.');
     });
-    const gross = data.items.reduce((sum, item) => sum + (Number(item?.price) || 0), 0);
+    const groups = data.costGroups ?? [];
+    if (!Array.isArray(groups)) return [...errors,'costGroups는 배열이어야 합니다.'];
+    const groupIds = new Set(), groupedItems = new Set();
+    for (const group of groups) {
+      if (!group || typeof group !== 'object' || typeof group.id !== 'string' || !group.id || groupIds.has(group.id)) { errors.push('주문 묶음 ID를 확인하세요.'); continue; }
+      groupIds.add(group.id);
+      if (typeof group.label !== 'string' || !group.label.trim() || group.label.length > 300) errors.push('주문 묶음 이름을 확인하세요.');
+      if (!Number.isSafeInteger(group.amount) || group.amount < 0) errors.push('주문 합계는 0 이상의 원 단위 정수여야 합니다.');
+      if (!costTypes.includes(group.costType)) errors.push('주문 묶음 비용 구분을 확인하세요.');
+      if (typeof group.memo !== 'string' || group.memo.length > 3000) errors.push('주문 메모를 확인하세요.');
+      if (!Array.isArray(group.itemIds) || !group.itemIds.length) { errors.push('주문 묶음에는 1개 이상의 품목이 필요합니다.'); continue; }
+      for (const id of group.itemIds) { if (!ids.has(id) || groupedItems.has(id)) errors.push('주문 묶음의 품목이 없거나 중복됩니다.'); groupedItems.add(id); }
+    }
+    if (errors.length) return errors;
+    const gross = costEntries(data).reduce((sum, entry) => sum + entry.amount, 0);
     if (!Number.isSafeInteger(gross) || !Number.isSafeInteger(gross + data.adjustment) || gross + data.adjustment < 0) errors.push('예상 합계가 올바른 금액 범위를 벗어났습니다.');
     return errors;
   }
   function summarize(data) {
-    const sum = items => items.reduce((n, item) => n + item.price, 0);
-    const gross = sum(data.items);
+    const entries = costEntries(data);
+    const sum = entries => entries.reduce((n, entry) => n + entry.amount, 0);
+    const gross = sum(entries);
     const meat = data.items.filter(item => item.category === 'meat');
     const meatGrams = meat.reduce((n, item) => n + (item.grams === null ? 0 : item.qty * item.grams), 0);
     const unknownMeat = meat.filter(item => item.grams === null).length;
@@ -51,9 +98,10 @@
     const readiness = unknownMeat ? '판단 보류' : perPerson < target.min ? '부족' : perPerson > target.max ? '넉넉함' : '적정';
     return {
       count: data.items.length, gross, net: gross + data.adjustment,
-      shared: sum(data.items.filter(item => item.costType === '공동 정산')),
-      personal: sum(data.items.filter(item => item.costType === '개인 제공')),
-      undecided: sum(data.items.filter(item => item.costType === '미정')),
+      shared: sum(entries.filter(entry => entry.costType === '공동 정산')),
+      personal: sum(entries.filter(entry => entry.costType === '개인 제공')),
+      undecided: sum(entries.filter(entry => entry.costType === '미정')),
+      unknownPrices: data.items.filter(item => item.price === null && !groupForItem(data,item.id)).length,
       meatGrams, unknownMeat, perPerson, readiness,
       ready: data.items.filter(item => item.status === '준비 완료').length,
       purchased: data.items.filter(item => item.status === '구매 완료').length,
@@ -61,5 +109,5 @@
       unassigned: data.items.filter(item => item.owner === '미지정').length
     };
   }
-  root.Picnic = { categories, statuses, costTypes, money, weight, validate, summarize };
+  root.Picnic = { categories, statuses, costTypes, money, weight, validate, summarize, groupForItem, ownerCosts, readHtmlSeed, replaceHtmlSeed };
 })(globalThis);

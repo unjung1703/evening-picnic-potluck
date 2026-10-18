@@ -7,9 +7,9 @@
   <meta name="description" content="함께 준비하는 저녁 피크닉. 준비물, 담당자, 예상 비용과 준비 현황을 한눈에 확인하세요.">
   <title>우리들의 저녁 피크닉 · 포트락</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=ec9048a82c">
-  <script src="core.js?v=89ee5c0705" defer></script>
-  <script src="app.js?v=b2eb616e87" defer></script>
+  <link rel="stylesheet" href="styles.css?v=daf7ba4365">
+  <script src="core.js?v=a203831cbf" defer></script>
+  <script src="app.js?v=d61403a38d" defer></script>
 </head>
 <body>
   <a class="skip" href="#content">본문으로 건너뛰기</a>
@@ -32,13 +32,14 @@
           <div class="filters"><div class="search-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="search">준비물 검색</label><input id="search" type="search" placeholder="상품명 또는 메모 검색" autocomplete="off"></div><div class="owner-wrap"><label class="sr-only" for="owner-filter">준비자</label><select id="owner-filter"><option value="">모든 준비자</option></select></div><label class="check-filter"><input id="needs-check" type="checkbox">확인 필요만</label></div>
           <div id="items-list" class="items-list" aria-live="polite"></div>
           <div id="empty" class="empty" hidden><strong>조건에 맞는 준비물이 없어요.</strong><p>검색어나 필터를 바꿔보세요.</p><button id="clear-filters">필터 초기화</button></div>
-          <p class="list-note">표시 가격은 해당 수량 전체의 예상 비용입니다.</p>
+          <p id="list-note" class="list-note">표시 가격은 해당 수량 전체의 예상 비용입니다.</p>
         </section>
         <section id="stats-view" aria-labelledby="stats-title" hidden>
           <div class="section-heading"><div><h2 id="stats-title">저녁 준비는 이만큼</h2><p>전체 목록을 기준으로 계산한 현황이에요.</p></div></div>
           <div class="stats-grid"><section class="stat-panel"><h3>준비 진행률</h3><div class="progress-head"><strong id="ready-number"></strong><span id="ready-percent"></span></div><div class="progress-track"><div id="ready-bar"></div></div><p id="status-summary" class="muted"></p></section><section class="stat-panel"><h3>함께 정산할 금액</h3><strong id="shared-total" class="large-value"></strong><p id="undecided-note" class="muted"></p><p class="fine">품목의 비용 구분 기준 · 장바구니 조정액은 별도</p></section></div>
           <section class="stat-panel meat-panel"><div class="panel-heading"><h3>고기, 충분할까요?</h3><span id="meat-readiness" class="status"></span></div><div class="meat-numbers"><div><span>총중량</span><strong id="meat-total"></strong></div><div><span id="per-label"></span><strong id="meat-per"></strong></div></div><p id="meat-advice"></p><p id="meat-target" class="fine"></p><p class="fine">해산물은 제외합니다. 뼈·손질 손실은 반영하지 않은 단순 총중량입니다.</p></section>
-          <section class="stat-panel"><h3>예상 비용 내역</h3><dl class="cost-lines"><div><dt>상품 금액 합계</dt><dd id="gross"></dd></div><div><dt>장바구니 조정액</dt><dd id="adjustment"></dd></div><div class="cost-total"><dt>예상 총비용</dt><dd id="net"></dd></div><div><dt>개인 제공 · 정산 제외</dt><dd id="personal"></dd></div><div><dt>비용 구분 미정</dt><dd id="undecided"></dd></div></dl><p class="fine">조정액은 기존 파일의 값을 유지했습니다. 공동 정산에 배분하지 않았으며, 실제 결제액과 다를 수 있습니다.</p></section>
+          <section class="stat-panel" id="cost-groups-panel" hidden><h3>주문별 예상 합계</h3><div id="cost-groups"></div></section>
+          <section class="stat-panel"><h3>예상 비용 내역</h3><dl class="cost-lines"><div><dt>상품·주문 예상 합계</dt><dd id="gross"></dd></div><div><dt>장바구니 조정액</dt><dd id="adjustment"></dd></div><div class="cost-total"><dt>예상 총비용</dt><dd id="net"></dd></div><div><dt>개인 제공 · 정산 제외</dt><dd id="personal"></dd></div><div><dt>비용 구분 미정</dt><dd id="undecided"></dd></div></dl><p class="fine">조정액은 기존 파일의 값을 유지했습니다. 공동 정산에 배분하지 않았으며, 실제 결제액과 다를 수 있습니다.</p></section>
           <section class="stat-panel"><h3>준비자별 내역</h3><div id="owners-list"></div></section>
           <section class="stat-panel"><h3>만나기 전 확인해요</h3><ul id="checklist" class="checklist"></ul></section>
         </section>

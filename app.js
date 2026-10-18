@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  const { categories, money, weight, validate, summarize } = Picnic;
+  const { categories, money, weight, validate, summarize, groupForItem, ownerCosts } = Picnic;
   let data, category = '', activeView = 'items', loading = false;
   const node = (tag, text, className) => { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; if (className) el.className = className; return el; };
   function showView(view, focus = false) {
@@ -17,17 +17,22 @@
     $('result-count').textContent = items.length + ' / ' + data.items.length + '개';
     const fragment = document.createDocumentFragment();
     items.forEach(item => {
+      const group = groupForItem(data,item.id);
       const row = node('article', undefined, 'item');
       const content = node('div', undefined, 'item-content');
       content.append(node('h3', item.name, 'item-title'));
       const details = node('div', undefined, 'item-detail');
       details.append(node('span', item.owner), node('span', item.qty + item.unit), node('span', weight(item.grams === null ? null : item.qty * item.grams)));
       const tags = node('div', undefined, 'item-tags');
-      tags.append(node('span', item.status, 'status ' + (item.status === '구매 완료' ? 'purchased' : item.status === '준비 완료' ? 'ready' : 'planned')), node('span', item.costType === '미정' ? '비용 구분 미정' : item.costType, 'cost-type'));
+      const costType = group ? group.costType : item.costType;
+      tags.append(node('span', item.status, 'status ' + (item.status === '구매 완료' ? 'purchased' : item.status === '준비 완료' ? 'ready' : 'planned')), node('span', costType === '미정' ? '비용 구분 미정' : costType, 'cost-type'));
+      if (group) tags.append(node('span','주문 묶음 포함','cost-type'));
       if (item.name.includes('확인 필요')) tags.append(node('span', '상품명 확인 필요', 'uncertain'));
       content.append(details, tags);
       if (item.memo) content.append(node('p', item.memo, 'item-memo'));
-      row.append(node('div', categories[item.category], 'category-mark ' + item.category), content, node('div', money(item.price), 'item-price'));
+      const price = node('div',item.price === null ? '개별가 미확인' : money(item.price),'item-price');
+      if (group) price.append(node('small',item.price === null ? '주문 합계로 계산' : '이전 예상가 · 합계 제외'));
+      row.append(node('div', categories[item.category], 'category-mark ' + item.category), content, price);
       fragment.append(row);
     });
     $('items-list').replaceChildren(fragment); $('empty').hidden = items.length > 0;
@@ -58,9 +63,17 @@
     $('meat-advice').textContent = s.unknownMeat ? '현재 확인된 양은 1인당 ' + Math.round(s.perPerson) + 'g이에요. 고기 ' + s.unknownMeat + '개 품목의 중량이 없어 부족·과다 판단을 보류했어요.' : s.readiness === '부족' ? '설정한 최소량까지 ' + weight(Math.max(0, data.people * data.meatTargetGrams.min - s.meatGrams)) + ' 더 필요해요.' : s.readiness === '넉넉함' ? '설정한 최대량보다 ' + weight(s.meatGrams - data.people * data.meatTargetGrams.max) + ' 많아요. 다른 음식과 함께 양을 조절해요.' : '설정한 준비 범위에 들어와 있어요. 다른 음식의 양도 함께 확인해요.';
     $('meat-target').textContent = '준비 참고 기준: 1인당 ' + data.meatTargetGrams.min + '–' + data.meatTargetGrams.max + 'g · 관리자가 조정할 수 있는 모임용 기준입니다.';
     for (const key of ['gross', 'net', 'personal', 'undecided']) $(key).textContent = money(s[key]); $('adjustment').textContent = (data.adjustment > 0 ? '+' : '') + money(data.adjustment);
+    $('cost-groups-panel').hidden = !(data.costGroups || []).length;
+    $('cost-groups').replaceChildren(...(data.costGroups || []).map(group => {
+      const section=node('div',undefined,'order-group');
+      section.append(node('h4',group.label),node('strong',money(group.amount)),node('p',data.items.filter(item=>group.itemIds.includes(item.id)).map(item=>item.name).join(' / '),'muted'),node('p',group.memo,'fine'),node('p',group.costType+' · 위 품목은 주문 합계로 한 번만 계산합니다.','fine'));
+      return section;
+    }));
+    $('list-note').textContent = (data.costGroups || []).length ? '주문 묶음 품목은 개별 가격 대신 현황의 주문 합계를 한 번만 계산합니다.' : '표시 가격은 해당 수량 전체의 예상 비용입니다.';
     $('owners-list').replaceChildren(...owners.map(owner => {
       const items = data.items.filter(item => item.owner === owner), row = node('div', undefined, 'owner-line'), details = node('div');
-      details.append(node('strong', owner), node('small', items.length + '개 · ' + money(items.reduce((n, item) => n + item.price, 0))));
+      const costs=ownerCosts(data,owner);
+      details.append(node('strong', owner), node('small', items.length + '개 · ' + money(costs.amount) + (costs.separateGroups ? ' · 여러 준비자의 주문 합계 별도' : '')));
       const button = node('button', '목록 보기'); button.setAttribute('aria-label', owner + ' 준비물 목록 보기'); button.addEventListener('click', () => { $('owner-filter').value = owner; category = ''; $('search').value = ''; $('needs-check').checked = false; renderItems(); showView('items', true); });
       row.append(details, button); return row;
     }));
@@ -68,6 +81,7 @@
     if (s.uncertain) checks.push('상품명 확인이 필요한 품목이 ' + s.uncertain + '개 있어요. 구매 전 정확한 상품을 확인해주세요.');
     if (s.unassigned) checks.push('준비자가 미지정인 품목이 ' + s.unassigned + '개 있어요. 담당자를 정해주세요.');
     if (s.unknownMeat) checks.push('고기 ' + s.unknownMeat + '개 품목의 개당 중량을 확인해주세요.');
+    if (s.unknownPrices) checks.push('주문 합계에 포함되지 않은 가격 미확인 품목이 '+s.unknownPrices+'개 있어요. 표시 합계는 확인된 금액만 포함합니다.');
     if (!data.items.some(item => item.category === 'drink')) checks.push('등록된 음료가 없어요. 음료 준비 여부를 확인해주세요.');
     checks.push('음식·해산물·음료는 인분과 용량 정보가 충분하지 않아 부족·과다를 자동 판정하지 않아요.');
     $('checklist').replaceChildren(...checks.map(text => node('li', text)));
