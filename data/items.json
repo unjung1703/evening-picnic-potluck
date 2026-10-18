@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "updatedAt": "2026-10-18T11:18:39.607Z",
+  "people": 10,
+  "adjustment": -3000,
+  "meatTargetGrams": {
+    "min": 250,
+    "max": 400
+  },
+  "items": [
+    {
+      "id": "picnic-001",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "양념 구이용 400g (정확한 상품명 확인 필요)",
+      "qty": 3,
+      "unit": "팩",
+      "grams": 400,
+      "price": 46200,
+      "category": "meat"
+    },
+    {
+      "id": "picnic-002",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "냉장 고기 300g (정확한 상품명 확인 필요)",
+      "qty": 3,
+      "unit": "팩",
+      "grams": 300,
+      "price": 71760,
+      "category": "meat"
+    },
+    {
+      "id": "picnic-003",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "채소류 (정확한 상품명 확인 필요)",
+      "qty": 2,
+      "unit": "개",
+      "grams": null,
+      "price": 21800,
+      "category": "food"
+    },
+    {
+      "id": "picnic-004",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "소고기 구이용 250g (부위 확인 필요)",
+      "qty": 4,
+      "unit": "팩",
+      "grams": 250,
+      "price": 74000,
+      "category": "meat"
+    },
+    {
+      "id": "picnic-005",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "양념 육류 (정확한 상품명·중량 확인 필요)",
+      "qty": 1,
+      "unit": "개",
+      "grams": null,
+      "price": 13590,
+      "category": "meat"
+    },
+    {
+      "id": "picnic-006",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "새우 300g (정확한 상품명 확인 필요)",
+      "qty": 3,
+      "unit": "팩",
+      "grams": 300,
+      "price": 29970,
+      "category": "seafood"
+    },
+    {
+      "id": "picnic-007",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "조미료 (정확한 상품명 확인 필요)",
+      "qty": 1,
+      "unit": "개",
+      "grams": null,
+      "price": 4980,
+      "category": "supplies"
+    },
+    {
+      "id": "picnic-008",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "코멧 투명 페트 아이스컵 470ml, 50개입",
+      "qty": 1,
+      "unit": "팩",
+      "grams": null,
+      "price": 5990,
+      "category": "supplies"
+    },
+    {
+      "id": "picnic-009",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "",
+      "name": "아몰리바 포마스 올리브오일 1L",
+      "qty": 1,
+      "unit": "병",
+      "grams": null,
+      "price": 11120,
+      "category": "supplies"
+    },
+    {
+      "id": "picnic-010",
+      "owner": "미지정",
+      "status": "준비 예정",
+      "costType": "미정",
+      "memo": "추가 장바구니 캡처 · 기존 아이스컵·올리브오일 중복 제외",
+      "name": "만토바 블랙 발사믹 글레이즈 소스 250ml",
+      "qty": 1,
+      "unit": "병",
+      "grams": null,
+      "price": 7140,
+      "category": "supplies"
+    }
+  ]
+}
+  
