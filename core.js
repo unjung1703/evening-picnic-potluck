@@ -63,4 +63,3 @@
   }
   root.Picnic = { categories, statuses, costTypes, money, weight, validate, summarize };
 })(globalThis);
-  
